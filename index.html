@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>たみわ RPG</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000820;color:#fff;font-family:'Courier New','MS Gothic',monospace;font-size:14px;line-height:1.7;padding:12px;min-height:100vh}
+.win{background:#00093a;border:4px solid #fff;box-shadow:inset 0 0 0 2px #000820,4px 4px 0 #000;padding:14px 16px;margin-bottom:12px}
+.wt{color:#ffff00;font-size:11px;letter-spacing:.12em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #ffffff22}
+#sc-char{display:block}
+#sc-main{display:none}
+
+/* キャラメイク */
+.avatar-big{font-size:72px;line-height:1;text-align:center;padding:10px 0 6px;cursor:default;user-select:none}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.ep{font-size:28px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:3px solid #334488;cursor:pointer;border-radius:4px;transition:border-color .1s}
+.ep:hover{border-color:#8899ff}
+.ep.sel{border-color:#ffff00;background:#0a1550}
+.ol{color:#aabbff;font-size:11px;letter-spacing:.08em;margin:10px 0 4px}
+.ni{background:#000820;border:3px solid #fff6;color:#fff;font-family:'Courier New',monospace;font-size:15px;padding:5px 10px;width:100%;outline:none}
+.ni:focus{border-color:#fff}
+.sbts{display:flex;flex-wrap:wrap;gap:5px}
+.sbt{background:#040e3a;border:2px solid #334488;color:#aabbff;font-family:'Courier New',monospace;font-size:11px;padding:4px 8px;cursor:pointer}
+.sbt:hover{border-color:#8899ff;color:#fff}.sbt.sel{border-color:#ffff00;color:#ffff00}
+.dqb{background:#00093a;border:3px solid #fff;box-shadow:3px 3px 0 #000;color:#ffff00;font-family:'Courier New',monospace;font-size:14px;letter-spacing:.1em;padding:10px 20px;cursor:pointer;width:100%;margin-top:14px}
+.dqb:hover{background:#0a1a55}.dqb:active{box-shadow:1px 1px 0 #000;transform:translate(2px,2px)}
+
+/* メイン */
+.avatar-sm{font-size:52px;line-height:1;flex-shrink:0;width:64px;text-align:center;padding-top:4px}
+.sr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sl{color:#aabbff;font-size:11px;min-width:58px;letter-spacing:.05em}
+.hb{display:flex;gap:3px}
+.hs{width:13px;height:13px;background:#0a1a0a;border:1px solid #1a3a1a}
+.hs.on{background:#00ee44;border-color:#00aa33}.hs.on.w{background:#ffcc00;border-color:#cc9900}.hs.on.c{background:#ff3333;border-color:#cc1111}
+.et{flex:1;height:9px;background:#040d30;border:2px solid #fff2;overflow:hidden}
+.ef{height:100%;background:linear-gradient(90deg,#4488ff,#88aaff);transition:width .5s}
+input[type=range]{-webkit-appearance:none;width:90px;height:7px;background:#040d30;border:2px solid #fff2;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:#ffff00;cursor:pointer}
+input[type=number]{background:#000820;border:2px solid #fff4;color:#ffdd00;padding:3px 7px;font-family:'Courier New',monospace;font-size:13px;width:110px;outline:none}
+.qi{display:flex;align-items:flex-start;gap:7px;padding:7px 4px;border-bottom:1px solid #fff1;cursor:pointer}
+.qi:last-child{border-bottom:none}.qi:hover{background:#0a1550}
+.qc{color:#ffff00;min-width:13px;font-size:12px;flex-shrink:0;margin-top:2px}
+input[type=checkbox]{accent-color:#ffff00;width:13px;height:13px;cursor:pointer;flex-shrink:0;margin-top:2px}
+.qn{flex:1;font-size:13px}.qn.done{color:#334466;text-decoration:line-through}
+.rk{font-size:10px;padding:1px 5px;border:1px solid;flex-shrink:0;margin-top:2px}
+.rS{color:#ffff00;border-color:#ffff00}.rA{color:#ff9944;border-color:#ff9944}.rB{color:#44aaff;border-color:#44aaff}.rC{color:#66ee88;border-color:#66ee88}
+.qchat{background:transparent;border:1px solid #334488;color:#6688cc;font-size:11px;padding:1px 5px;cursor:pointer;font-family:'Courier New',monospace;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.qchat:hover{border-color:#aabbff;color:#fff}
+.al{font-size:12px;color:#ff5555;padding:4px 0;border-bottom:1px solid #fff1}.al:last-child{border-bottom:none}.al::before{content:'✕  ';color:#ff3333}
+.mw{background:#00093a;border:4px solid #fff;box-shadow:inset 0 0 0 2px #000820,4px 4px 0 #000;padding:10px 16px;min-height:54px;font-size:13px;line-height:1.8}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}.cur{animation:blink .8s infinite}
+.dl{text-align:right;color:#334466;font-size:11px;letter-spacing:.1em;margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.two{grid-template-columns:1fr}}
+.smb{background:transparent;border:1px solid #334466;color:#334466;font-family:'Courier New',monospace;font-size:10px;padding:2px 7px;cursor:pointer;margin-left:8px}
+.smb:hover{border-color:#aabbff;color:#aabbff}
+.lvup{color:#ffff00;font-size:11px;animation:blink .4s 4}
+</style>
+</head>
+<body>
+
+<!-- ══ キャラメイク ══ -->
+<div id="sc-char">
+<div class="win">
+  <div class="wt">✨ ぼうけんしゃの　とうろく</div>
+
+  <div class="avatar-big" id="preview-emoji">🔮</div>
+
+  <div class="ol">① なまえ</div>
+  <input class="ni" id="c-name" type="text" placeholder="たみわ" maxlength="10">
+
+  <div class="ol">② アバター　えらぶ</div>
+  <div class="emoji-grid" id="emoji-grid"></div>
+
+  <div class="ol">③ しょくぎょう</div>
+  <div class="sbts" id="job-b"></div>
+
+  <button class="dqb" onclick="startGame()">▶　ぼうけんを　はじめる！</button>
+</div>
+</div>
+
+<!-- ══ メイン ══ -->
+<div id="sc-main">
+  <div class="dl" id="dl"></div>
+  <div class="win">
+    <div class="wt">★ ぼうけんしゃのじょうたい <button class="smb" onclick="goChar()">キャラ変更</button></div>
+    <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:12px">
+      <div class="avatar-sm" id="m-avatar">🔮</div>
+      <div style="flex:1">
+        <div class="sr"><span class="sl">なまえ</span><span id="m-name" style="font-size:15px;font-weight:bold"></span><span id="m-lv" style="color:#ffff00;font-size:12px;margin-left:8px"></span></div>
+        <div class="sr"><span class="sl">しょくぎょう</span><span id="m-job" style="color:#ffff00;font-size:12px"></span></div>
+        <div class="sr">
+          <span class="sl">たいりょく</span>
+          <div class="hb" id="hpbar"></div>
+          <span style="color:#888;font-size:11px;margin-left:4px"><span id="hpn">5</span>/10</span>
+          <input type="range" min="1" max="10" value="5" id="hpsl" oninput="setHP(+this.value)" style="margin-left:8px">
+        </div>
+        <div class="sr">
+          <span class="sl">そうけいEXP</span>
+          <div class="et"><div class="ef" id="expf" style="width:0%"></div></div>
+          <span style="color:#4488ff;font-size:11px;margin-left:5px" id="expn"></span>
+        </div>
+        <div class="sr"><span class="sl">GOLD</span><span style="color:#ffdd00">¥</span><input type="number" id="gold" placeholder="0" oninput="saveDay()" style="margin-left:3px"><span style="color:#334466;font-size:11px;margin-left:5px">/ ¥700,000</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="win">
+    <div class="wt">⚔ きょうの　クエスト（1つ　えらべ）</div>
+    <ul id="ql" style="list-style:none"></ul>
+  </div>
+  <div class="two">
+    <div class="win" style="margin-bottom:0">
+      <div class="wt">💀 きんじられたまほう</div>
+      <div class="al">SNS全媒体を同時に更新する</div>
+      <div class="al">価格を下げる魔法を唱える</div>
+      <div class="al">「完成してから出す」の呪文</div>
+      <div class="al">体力以上の敵を引き受ける</div>
+      <div class="al">夜10時以降に返信を送る</div>
+    </div>
+    <div class="win" style="margin-bottom:0">
+      <div class="wt">🐕 かみさまのことば</div>
+      <div style="color:#aabbff;font-size:13px;line-height:2">いのりと　じつむは<br>どうじに　なりたつ。<br><span style="color:#ffff00">きょうも　ひとつだけ。</span></div>
+    </div>
+  </div>
+  <div style="margin-top:12px"></div>
+  <div class="mw"><span id="msg"></span><span class="cur">█</span></div>
+</div>
+
+<script>
+/* ── EMOJIS ── */
+const EMOJIS = [
+  '🔮','✨','🌙','⭐','💫','🌟','🪄','🧿',
+  '🦊','🐺','🦋','🌸','🌺','🌿','🐕','🦅',
+  '🧙‍♀️','🧝‍♀️','🧚‍♀️','🧜‍♀️','👑','🎭','🎨','🌈',
+];
+const JOBS = ['れいかいし','えかき','ものづくりし','けんじゃ','たびびと'];
+
+let selEmoji = '🔮';
+let selJob   = 0;
+
+function buildCharUI() {
+  // emoji grid
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(em => {
+    const d = document.createElement('div');
+    d.className = 'ep' + (em === selEmoji ? ' sel' : '');
+    d.textContent = em;
+    d.onclick = () => {
+      selEmoji = em;
+      document.getElementById('preview-emoji').textContent = em;
+      grid.querySelectorAll('.ep').forEach(x => x.classList.toggle('sel', x.textContent === em));
+    };
+    grid.appendChild(d);
+  });
+  // job buttons
+  const jb = document.getElementById('job-b');
+  jb.innerHTML = '';
+  JOBS.forEach((j, i) => {
+    const b = document.createElement('button');
+    b.className = 'sbt' + (i === selJob ? ' sel' : '');
+    b.textContent = j;
+    b.onclick = () => {
+      selJob = i;
+      jb.querySelectorAll('.sbt').forEach((x,k) => x.classList.toggle('sel', k === i));
+    };
+    jb.appendChild(b);
+  });
+}
+
+/* ── EXP & LEVEL ── */
+// EXP accumulates globally across all days
+// Level up every 5 quests completed
+const EXP_PER_LV = 5;
+function getTotalEXP() { return +(localStorage.getItem('rpg_totalexp') || 0); }
+function setTotalEXP(v) { localStorage.setItem('rpg_totalexp', v); }
+function expToLevel(exp) { return Math.floor(exp / EXP_PER_LV) + 1; }
+function expInLevel(exp) { return exp % EXP_PER_LV; }
+function refreshEXP() {
+  const exp = getTotalEXP();
+  const lv  = expToLevel(exp);
+  const inLv = expInLevel(exp);
+  document.getElementById('expf').style.width = Math.round(inLv / EXP_PER_LV * 100) + '%';
+  document.getElementById('expn').textContent = `${exp} (Lv.${lv} ← あと${EXP_PER_LV - inLv})`;
+  document.getElementById('m-lv').textContent  = `Lv.${lv}`;
+}
+
+/* ── QUESTS ── */
+const QUESTS = [
+  {id:'x',name:'🎉【棚卸しボーナス】全作品の在庫・状態確認を完了した（5/9達成）',rank:'A',cat:'個展'},
+  {id:'a',name:'【★5/15】グッズ・印刷物データを仕上げて入稿する',rank:'S',cat:'個展'},
+  {id:'b',name:'【★5/23】DMデータ・メインビジュアルをギャラリーに提出する',rank:'S',cat:'個展'},
+  {id:'c',name:'三部作新作「世界」の制作を進める',rank:'A',cat:'個展'},
+  {id:'d',name:'かみシリーズを1点描き上げる',rank:'A',cat:'個展'},
+  {id:'e',name:'Instagram Reels（制作過程）を1本投稿する',rank:'B',cat:'発信'},
+  {id:'f',name:'noteクロスポスト残り6本のうち1本を公開する',rank:'B',cat:'発信'},
+  {id:'g',name:'低体力デー。犬と散歩してネタメモだけ書く。',rank:'C',cat:'休息'},
+];
+const MSGS = [
+  'かみさまと いぬと いっしょに　ひとつだけ　やってください。',
+  'いのりと じつむは　どうじに　なりたつ。',
+  'かんせいより そんざい。だすことが ぼうけんの はじまりだ。',
+  'クエストは ひとつ。それが さいきょうの せんりゃくだ。',
+  'きょうも ひとつだけ。それで じゅうぶんだ。',
+];
+
+function dayKey() {
+  const d = new Date();
+  return `rpg6_${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
+}
+function loadDay() {
+  try { return JSON.parse(localStorage.getItem(dayKey())) || {}; } catch { return {}; }
+}
+function saveDay() {
+  localStorage.setItem(dayKey(), JSON.stringify({
+    hp:   +document.getElementById('hpsl').value,
+    gold: document.getElementById('gold').value,
+    done: QUESTS.filter(q => document.getElementById('q'+q.id)?.checked).map(q => q.id),
+  }));
+}
+
+async function askBoader(questName) {
+  const box = document.getElementById('msg');
+  const cur = document.querySelector('.cur');
+  // Cowork外（スマホ・ブラウザ）ではClaude.aiへ誘導
+  if (!window.cowork) {
+    const prompt = encodeURIComponent(`あなたはクリエイター・多神和のパートナー「ボーダ」です。今日のクエスト「${questName}」の最初の一歩として今すぐできる具体的なアクションを2〜3文で教えてください。`);
+    box.innerHTML = `💬 <a href="https://claude.ai/new?q=${prompt}" target="_blank" style="color:#88aaff">Claude.aiで聞く →</a><br><span style="color:#556688;font-size:11px">（新しいタブが開きます）</span>`;
+    return;
+  }
+  box.textContent = '…考えています…';
+  cur.style.display = 'none';
+  try {
+    const reply = await window.cowork.askClaude(
+      `あなたはクリエイター・多神和のパートナー「ボーダ」です。
+今日の最重要クエストとして「${questName}」に取り組もうとしています。
+最初の一歩として今すぐできる具体的なアクションを、2〜3文で簡潔に教えてください。
+余計な前置きは不要。実行単位で。`,
+      []
+    );
+    const text = typeof reply === 'string' ? reply
+      : reply?.text ?? reply?.content ?? reply?.result
+      ?? (Array.isArray(reply) ? reply[0]?.text ?? JSON.stringify(reply) : JSON.stringify(reply));
+    box.innerHTML = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\n/g,'<br>');
+  } catch(e) {
+    box.textContent = '（返答できませんでした）';
+  }
+  cur.style.display = '';
+}
+
+const CAT_LABEL = { '個展':'🎨 個展', '発信':'📣 発信', '休息':'🌿 休息' };
+function renderQ(doneIds) {
+  const ul = document.getElementById('ql');
+  ul.innerHTML = '';
+  let lastCat = null;
+  QUESTS.forEach(q => {
+    // カテゴリ見出し
+    if (q.cat !== lastCat) {
+      lastCat = q.cat;
+      const sep = document.createElement('li');
+      sep.style.cssText = 'padding:8px 4px 3px;font-size:10px;letter-spacing:.1em;color:#6688cc;border-bottom:1px solid #334488;list-style:none';
+      sep.textContent = CAT_LABEL[q.cat] || q.cat;
+      ul.appendChild(sep);
+    }
+    const done = doneIds.includes(q.id);
+    const li = document.createElement('li');
+    li.className = 'qi';
+    li.innerHTML =
+      `<span class="qc" id="cur${q.id}">${done ? '✓' : '▶'}</span>` +
+      `<input type="checkbox" id="q${q.id}"${done ? ' checked' : ''} onchange="tick('${q.id}')">` +
+      `<label class="qn${done ? ' done' : ''}" id="lbl${q.id}" for="q${q.id}">${q.name}</label>` +
+      `<span class="rk r${q.rank}">${q.rank}</span>` +
+      `<button class="qchat" onclick="askBoader('${q.name.replace(/'/g,"\\'")}')">💬</button>`;
+    ul.appendChild(li);
+  });
+}
+
+function tick(id) {
+  const prevExp = getTotalEXP();
+  const prevLv  = expToLevel(prevExp);
+  const cb  = document.getElementById('q' + id);
+  const lbl = document.getElementById('lbl' + id);
+  const cur = document.getElementById('cur' + id);
+  if (cb.checked) {
+    lbl.classList.add('done');
+    cur.textContent = '✓';
+    setTotalEXP(prevExp + 1);         // ✅ クエスト完了 → 累計EXP +1
+  } else {
+    lbl.classList.remove('done');
+    cur.textContent = '▶';
+    setTotalEXP(Math.max(0, prevExp - 1)); // 取り消し → -1
+  }
+  saveDay();
+  refreshEXP();
+  // レベルアップ演出
+  if (expToLevel(getTotalEXP()) > prevLv) {
+    const lvel = document.getElementById('m-lv');
+    lvel.classList.add('lvup');
+    setTimeout(() => lvel.classList.remove('lvup'), 2000);
+  }
+}
+
+function setHP(v) {
+  document.getElementById('hpn').textContent = v;
+  const bar = document.getElementById('hpbar');
+  bar.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const s = document.createElement('div');
+    s.className = 'hs' + (i <= v ? ' on' + (v <= 3 ? ' c' : v <= 6 ? ' w' : '') : '');
+    bar.appendChild(s);
+  }
+  saveDay();
+}
+
+/* ── SCREENS ── */
+function startGame() {
+  const name = document.getElementById('c-name').value.trim() || 'たみわ';
+  const data  = { name, emoji: selEmoji, job: JOBS[selJob] };
+  localStorage.setItem('rpg_char6', JSON.stringify(data));
+  showMain(data);
+}
+
+function goChar() {
+  const sv = localStorage.getItem('rpg_char6');
+  if (sv) { try { const d = JSON.parse(sv); selEmoji = d.emoji||'🔮'; selJob = JOBS.indexOf(d.job)||0; } catch{} }
+  buildCharUI();
+  document.getElementById('c-name').value =
+    (JSON.parse(localStorage.getItem('rpg_char6')||'{}').name) || '';
+  document.getElementById('preview-emoji').textContent = selEmoji;
+  document.getElementById('sc-char').style.display = 'block';
+  document.getElementById('sc-main').style.display  = 'none';
+}
+
+function showMain(data) {
+  document.getElementById('sc-char').style.display = 'none';
+  document.getElementById('sc-main').style.display  = 'block';
+  document.getElementById('m-avatar').textContent   = data.emoji || '🔮';
+  document.getElementById('m-name').textContent     = data.name;
+  document.getElementById('m-job').textContent      = data.job;
+  const N = new Date(), WD = ['日','月','火','水','木','金','土'];
+  document.getElementById('dl').textContent =
+    `${N.getFullYear()}.${String(N.getMonth()+1).padStart(2,'0')}.${String(N.getDate()).padStart(2,'0')} (${WD[N.getDay()]})`;
+  const st = loadDay();
+  const hp = st.hp || 5;
+  document.getElementById('hpsl').value  = hp;
+  document.getElementById('gold').value  = st.gold || '';
+  setHP(hp);
+  renderQ(st.done || []);
+  refreshEXP();
+  // タイプライターメッセージ
+  const txt = MSGS[Math.floor(Math.random() * MSGS.length)];
+  const el = document.getElementById('msg');
+  el.textContent = '';
+  let i = 0;
+  const t = setInterval(() => { if (i < txt.length) el.textContent += txt[i++]; else clearInterval(t); }, 55);
+}
+
+/* ── INIT ── */
+buildCharUI();
+const charSv = localStorage.getItem('rpg_char6');
+if (charSv) {
+  try {
+    const d = JSON.parse(charSv);
+    selEmoji = d.emoji || '🔮';
+    selJob   = JOBS.indexOf(d.job) >= 0 ? JOBS.indexOf(d.job) : 0;
+    buildCharUI();
+    document.getElementById('preview-emoji').textContent = selEmoji;
+    showMain(d);
+  } catch {}
+}
+</script>
+</body>
+</html>
