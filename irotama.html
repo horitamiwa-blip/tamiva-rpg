@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>いろたま — IROTAMA</title>
+<style>
+:root{
+  --paper:#faf6ef;
+  --paper-deep:#f3ecdf;
+  --ink:#4a4038;
+  --ink-soft:#8a7f72;
+  --ink-faint:#c9c0b2;
+  --line:#e4dccb;
+  --accent:#b0885e;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP',serif;
+  font-size:15px;
+  line-height:2.1;
+  letter-spacing:.06em;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:480px;margin:0 auto;padding:0 24px 80px}
+.screen{display:none;animation:fadein 1.1s ease both}
+.screen.on{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── intro ── */
+#scr-intro{text-align:center;padding-top:16vh}
+.mark{
+  font-size:13px;letter-spacing:.55em;color:var(--ink-soft);
+  text-indent:.55em;margin-bottom:26px;
+}
+.title-dots{display:flex;justify-content:center;gap:10px;margin-bottom:30px}
+.title-dots span{width:9px;height:9px;border-radius:50%;opacity:.85}
+h1{font-size:34px;font-weight:500;letter-spacing:.3em;text-indent:.3em;margin-bottom:8px}
+.sub{font-size:11px;letter-spacing:.3em;text-indent:.3em;color:var(--ink-faint);margin-bottom:52px}
+.lead{font-size:14px;color:var(--ink-soft);line-height:2.4;margin-bottom:56px}
+.btn{
+  display:inline-block;background:none;border:1px solid var(--ink-soft);
+  color:var(--ink);font-family:inherit;font-size:14px;letter-spacing:.35em;text-indent:.35em;
+  padding:14px 44px;border-radius:999px;cursor:pointer;
+  transition:background .4s,color .4s,border-color .4s;
+}
+.btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.ghost{border-color:var(--line);color:var(--ink-soft);font-size:12px;padding:10px 30px}
+.btn.ghost:hover{background:none;color:var(--ink);border-color:var(--ink-soft)}
+
+/* ── paint ── */
+#scr-paint{padding-top:34px}
+.paint-head{text-align:center;margin-bottom:20px}
+.paint-head .mark{margin-bottom:12px}
+.hint{font-size:12.5px;color:var(--ink-soft);line-height:2.2}
+.board-outer{display:flex;justify-content:center;margin:18px 0 20px}
+.board{position:relative;touch-action:none;border-radius:6px;overflow:hidden;
+  box-shadow:0 2px 24px rgba(120,100,70,.10)}
+.board canvas{position:absolute;left:0;top:0}
+.board canvas:first-child{position:relative}
+
+/* palette */
+.palette{display:grid;grid-template-columns:repeat(8,1fr);gap:9px 6px;
+  justify-items:center;margin:0 auto 18px;max-width:360px}
+.sw{width:30px;height:30px;border-radius:50%;cursor:pointer;position:relative;
+  border:none;padding:0;transition:transform .15s}
+.sw::after{content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:1.5px solid transparent;transition:border-color .2s}
+.sw.sel::after{border-color:var(--ink)}
+.sw:active{transform:scale(.9)}
+
+/* tools */
+.tools{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.tg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.tg button{
+  background:none;border:none;font-family:inherit;font-size:11.5px;letter-spacing:.1em;
+  color:var(--ink-soft);padding:7px 14px;cursor:pointer;transition:all .25s;
+}
+.tg button.sel{background:var(--ink);color:var(--paper)}
+.tools .mini{
+  background:none;border:none;color:var(--ink-faint);font-family:inherit;
+  font-size:11.5px;letter-spacing:.1em;padding:7px 10px;cursor:pointer;
+}
+.tools .mini:hover{color:var(--ink-soft)}
+.done-row{text-align:center;margin-top:26px}
+
+/* ── loading ── */
+#scr-loading{text-align:center;padding-top:30vh}
+.breath{display:flex;justify-content:center;gap:12px;margin-bottom:34px}
+.breath span{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);
+  animation:breath 2.4s ease-in-out infinite}
+.breath span:nth-child(2){animation-delay:.4s}
+.breath span:nth-child(3){animation-delay:.8s}
+@keyframes breath{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+#scr-loading p{font-size:13px;letter-spacing:.3em;text-indent:.3em;color:var(--ink-soft)}
+
+/* ── result ── */
+#scr-result{padding-top:56px}
+.r-thumb{display:flex;justify-content:center;margin-bottom:40px}
+.r-thumb canvas{border-radius:6px;box-shadow:0 2px 24px rgba(120,100,70,.12)}
+.r-title{font-size:22px;font-weight:500;text-align:center;line-height:2;
+  letter-spacing:.14em;margin-bottom:10px}
+.r-date{text-align:center;font-size:10.5px;letter-spacing:.3em;color:var(--ink-faint);margin-bottom:56px}
+.sec{margin-bottom:58px;animation:fadein 1.2s ease both}
+.sec-label{font-size:10.5px;letter-spacing:.45em;color:var(--accent);margin-bottom:6px}
+.sec-name{font-size:16px;letter-spacing:.2em;margin-bottom:20px;padding-bottom:12px;
+  border-bottom:1px solid var(--line)}
+.sec p{font-size:14px;color:var(--ink);margin-bottom:1em}
+.sec p:last-child{margin-bottom:0}
+
+/* color bars */
+.cb{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.cb .dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.cb .nm{font-size:12.5px;min-width:5.5em;color:var(--ink-soft)}
+.cb .bar{flex:1;height:4px;background:var(--paper-deep);border-radius:2px;overflow:hidden}
+.cb .bar i{display:block;height:100%;border-radius:2px}
+.cb .pc{font-size:11px;color:var(--ink-faint);min-width:3em;text-align:right}
+.cbars{margin-bottom:22px}
+
+/* cell items */
+.cell-item{display:flex;gap:16px;margin-bottom:30px}
+.pos9{display:grid;grid-template-columns:repeat(3,9px);grid-template-rows:repeat(3,9px);
+  gap:2px;flex-shrink:0;margin-top:8px}
+.pos9 i{background:var(--paper-deep);border-radius:1.5px}
+.pos9 i.on{background:var(--ink-soft)}
+.cell-body{flex:1}
+.cell-pos{font-size:11px;letter-spacing:.25em;color:var(--accent);margin-bottom:2px}
+.cell-txt{font-size:13.5px;line-height:2.15}
+
+.r-foot{text-align:center;margin-top:70px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.closing{font-size:12.5px;color:var(--ink-soft);text-align:center;line-height:2.5;margin-top:60px}
+.ai-box{margin-top:14px;font-size:13px;line-height:2.2;color:var(--ink-soft);text-align:left;
+  border-top:1px solid var(--line);padding-top:22px;display:none}
+.ai-box.on{display:block}
+.ai-box a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ intro ═══ -->
+<div class="screen on" id="scr-intro">
+  <div class="mark">I R O T A M A</div>
+  <div class="title-dots">
+    <span style="background:#d7003a"></span><span style="background:#f8b500"></span><span style="background:#3eb370"></span><span style="background:#165e83"></span><span style="background:#884898"></span>
+  </div>
+  <h1>いろたま</h1>
+  <div class="sub">こころを、いろで、みる</div>
+  <p class="lead">
+    9つのマスに、<br>
+    いまの気持ちのままに色を塗ってください。<br><br>
+    正解も、不正解もありません。<br>
+    うまく塗る必要もありません。<br><br>
+    直感のままに置かれた色が、<br>
+    いまのあなたを、そっと教えてくれます。
+  </p>
+  <button class="btn" onclick="goPaint()">はじめる</button>
+</div>
+
+<!-- ═══ paint ═══ -->
+<div class="screen" id="scr-paint">
+  <div class="paint-head">
+    <div class="mark">I R O T A M A</div>
+    <p class="hint">すきな色で、すきなように。<br>ぜんぶ塗っても、余白を残しても。</p>
+  </div>
+  <div class="board-outer">
+    <div class="board" id="board">
+      <canvas id="cv-paper"></canvas>
+      <canvas id="cv-ink"></canvas>
+      <canvas id="cv-live"></canvas>
+    </div>
+  </div>
+  <div class="palette" id="palette"></div>
+  <div class="tools">
+    <div class="tg" id="tg-size">
+      <button data-s="0">ほそい</button><button data-s="1" class="sel">ふつう</button><button data-s="2">ふとい</button>
+    </div>
+    <div class="tg" id="tg-op">
+      <button data-o="0">うすく</button><button data-o="1" class="sel">こく</button>
+    </div>
+    <button class="mini" onclick="undoStroke()">ひとつ戻る</button>
+    <button class="mini" onclick="clearAll()">ぜんぶ消す</button>
+  </div>
+  <div class="done-row">
+    <button class="btn" onclick="finishPaint()">できた</button>
+  </div>
+</div>
+
+<!-- ═══ loading ═══ -->
+<div class="screen" id="scr-loading">
+  <div class="breath"><span></span><span></span><span></span></div>
+  <p>いろたまを　よんでいます</p>
+</div>
+
+<!-- ═══ result ═══ -->
+<div class="screen" id="scr-result">
+  <div class="r-thumb"><canvas id="cv-thumb"></canvas></div>
+  <div class="sec-label" style="text-align:center">— いろたま診断 —</div>
+  <div class="r-title" id="r-title"></div>
+  <div class="r-date" id="r-date"></div>
+  <div id="r-body"></div>
+  <p class="closing">
+    今日のいろたまは、今日だけのもの。<br>
+    明日のあなたは、また違う色をしています。<br>
+    どうか、そのままのあなたで。
+  </p>
+  <div class="r-foot">
+    <button class="btn" onclick="saveImage()">きろくを　のこす</button>
+    <button class="btn ghost" id="btn-ai" onclick="askDeeper()">もっと深く聞いてみる</button>
+    <div class="ai-box" id="ai-box"></div>
+    <button class="btn ghost" onclick="restart()">もういちど　ぬる</button>
+  </div>
+</div>
+
+</div>
+<script>
+'use strict';
+
+/* ════════ 色（日本の伝統色 8系統 × 4） ════════ */
+const FAMILIES = {
+  momo:     {label:'もも',   core:'やさしさと愛情',
+             mean:'自分や誰かを、そっと大切にしたい気持ち'},
+  aka:      {label:'あか',   core:'いのちの熱',
+             mean:'動き出したいエネルギーと、大切なものへの情熱'},
+  daidai:   {label:'だいだい',core:'あたたかな交流',
+             mean:'楽しさや、人とのつながりを求める心'},
+  ki:       {label:'き',     core:'希望と好奇心',
+             mean:'光のさす方へ、顔を向けようとする力'},
+  midori:   {label:'みどり', core:'回復と安心',
+             mean:'育てること、休ませること、整えようとする心'},
+  ao:       {label:'あお',   core:'静けさと思索',
+             mean:'深く潜って、考えを澄ませようとする時間'},
+  murasaki: {label:'むらさき',core:'感受性と祈り',
+             mean:'目に見えないものを、感じとろうとする心'},
+  daichi:   {label:'だいち', core:'地に足をつける力',
+             mean:'守ること、休むこと、境界をひく静かな強さ'},
+};
+const COLORS = [
+  {f:'momo',    name:'桜',     hex:'#f6c6cf', n:'ほのかにひらきはじめた'},
+  {f:'momo',    name:'撫子',   hex:'#eea9bc', n:'親しみのこもった'},
+  {f:'momo',    name:'桃',     hex:'#f38fa2', n:'すなおであたたかい'},
+  {f:'momo',    name:'躑躅',   hex:'#e95c8b', n:'はっきりと愛を向ける'},
+  {f:'aka',     name:'朱',     hex:'#eb6238', n:'勢いよく外へ向かう'},
+  {f:'aka',     name:'紅',     hex:'#d7003a', n:'まっすぐで鮮やかな'},
+  {f:'aka',     name:'真紅',   hex:'#a22041', n:'芯の通った'},
+  {f:'aka',     name:'臙脂',   hex:'#8e354a', n:'深く熟成された'},
+  {f:'daidai',  name:'杏',     hex:'#f7b977', n:'やわらかくほどけた'},
+  {f:'daidai',  name:'橙',     hex:'#f39800', n:'あかるく開かれた'},
+  {f:'daidai',  name:'柿',     hex:'#ed6d3d', n:'実りに向かう'},
+  {f:'daidai',  name:'琥珀',   hex:'#bf7a2d', n:'時間をかけて澄んだ'},
+  {f:'ki',      name:'菜の花', hex:'#ffec47', n:'萌えたつような'},
+  {f:'ki',      name:'蒲公英', hex:'#ffd900', n:'まぶしいほど率直な'},
+  {f:'ki',      name:'山吹',   hex:'#f8b500', n:'豊かに実った'},
+  {f:'ki',      name:'芥子',   hex:'#caa860', n:'落ち着いた大人の'},
+  {f:'midori',  name:'若葉',   hex:'#a8d38d', n:'生まれたばかりの'},
+  {f:'midori',  name:'若竹',   hex:'#68be8d', n:'すこやかに伸びる'},
+  {f:'midori',  name:'緑',     hex:'#3eb370', n:'いのちの巡る'},
+  {f:'midori',  name:'深緑',   hex:'#00552e', n:'森の奥のように深い'},
+  {f:'ao',      name:'空色',   hex:'#a0d8ef', n:'ひらけて風の通る'},
+  {f:'ao',      name:'浅葱',   hex:'#00a3af', n:'澄んで冴えた'},
+  {f:'ao',      name:'青',     hex:'#0075c2', n:'まっすぐ深呼吸する'},
+  {f:'ao',      name:'藍',     hex:'#165e83', n:'夜の海のように深い'},
+  {f:'murasaki',name:'藤',     hex:'#a59aca', n:'ゆらめきながら感じとる'},
+  {f:'murasaki',name:'菫',     hex:'#7058a3', n:'ひそやかに祈るような'},
+  {f:'murasaki',name:'紫',     hex:'#884898', n:'気高く内へ向かう'},
+  {f:'murasaki',name:'葡萄',   hex:'#522f60', n:'夢の底のように濃い'},
+  {f:'daichi',  name:'茶',     hex:'#965042', n:'大地に根を下ろす'},
+  {f:'daichi',  name:'焦茶',   hex:'#6f4b3e', n:'黙って支えてくれる'},
+  {f:'daichi',  name:'灰',     hex:'#9fa0a0', n:'いったん立ち止まる'},
+  {f:'daichi',  name:'墨',     hex:'#3b3a39', n:'すべてを預かって守る'},
+];
+
+/* ════════ 位置の意味（固定・変更しない） ════════ */
+const POS = [
+  {name:'過去 × 思考', mean:'これまで考えてきたこと・学んできたこと'},
+  {name:'現在 × 思考', mean:'いま、頭の中にあるもの'},
+  {name:'未来 × 思考', mean:'これから描こうとしている考えや計画'},
+  {name:'過去 × 行動', mean:'これまで積み重ねてきた歩み'},
+  {name:'魂の核',      mean:'あなたという存在のまんなか・本質'},
+  {name:'未来 × 行動', mean:'これから踏み出そうとしている一歩'},
+  {name:'過去 × 感情', mean:'心の奥にしまってきた想い'},
+  {name:'現在 × 感情', mean:'いまの心の底にある気持ち'},
+  {name:'未来 × 感情', mean:'未来へ向けた予感や願い'},
+];
+
+/* ════════ キャンバス ════════ */
+const SIZES = [6,14,28];
+const OPS   = [0.38,0.9];
+let CW = 0;                 // css px（正方形）
+let DPR = 1;
+let gridM = 0, gridS = 0, cell = 0;   // マージン・グリッド辺・セル辺（css px）
+let curColor = COLORS[23];  // 藍
+let curSize = 1, curOp = 1;
+let strokes = [];           // {color,size,op,pts:[{x,y,t}],overStart}
+let live = null;
+let paintShownAt = 0, firstStrokeAt = 0, lastStrokeEnd = 0;
+let hesitations = 0, maxGap = 0, undoCount = 0, clearCount = 0, overpaintStarts = 0;
+let cellOrder = [];         // 初めて触れた順のセルindex
+
+const $ = id => document.getElementById(id);
+const cvPaper = $('cv-paper'), cvInk = $('cv-ink'), cvLive = $('cv-live');
+
+function setupCanvas(){
+  CW = Math.min(document.querySelector('.board-outer').clientWidth, 400);
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  gridM = Math.round(CW * 0.09);
+  gridS = CW - gridM*2;
+  cell = gridS/3;
+  for (const cv of [cvPaper,cvInk,cvLive]){
+    cv.width = CW*DPR; cv.height = CW*DPR;
+    cv.style.width = CW+'px'; cv.style.height = CW+'px';
+    cv.getContext('2d').setTransform(DPR,0,0,DPR,0,0);
+  }
+  $('board').style.width = CW+'px';
+  $('board').style.height = CW+'px';
+  drawPaper(cvPaper.getContext('2d'), CW);
+}
+function drawPaper(ctx, w){
+  const m = w*0.09, g = w-m*2;
+  ctx.fillStyle = '#fdfaf4';
+  ctx.fillRect(0,0,w,w);
+  ctx.strokeStyle = 'rgba(150,130,100,.28)';
+  ctx.lineWidth = 1;
+  for (let i=0;i<=3;i++){
+    const p = m + g/3*i;
+    ctx.beginPath(); ctx.moveTo(m,p); ctx.lineTo(m+g,p); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p,m); ctx.lineTo(p,m+g); ctx.stroke();
+  }
+}
+function cellAt(x,y){
+  const cx = Math.floor((x-gridM)/cell), cy = Math.floor((y-gridM)/cell);
+  if (cx<0||cx>2||cy<0||cy>2) return -1;
+  return cy*3+cx;
+}
+function drawStrokePath(ctx, s){
+  ctx.strokeStyle = s.color.hex;
+  ctx.fillStyle = s.color.hex;
+  ctx.lineWidth = s.size;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const p = s.pts;
+  if (p.length === 1){
+    ctx.beginPath(); ctx.arc(p[0].x,p[0].y,s.size/2,0,7); ctx.fill();
+    return;
+  }
+  ctx.beginPath();
+  ctx.moveTo(p[0].x,p[0].y);
+  for (let i=1;i<p.length;i++) ctx.lineTo(p[i].x,p[i].y);
+  ctx.stroke();
+}
+function commitStroke(s){
+  const tmp = document.createElement('canvas');
+  tmp.width = CW*DPR; tmp.height = CW*DPR;
+  const tc = tmp.getContext('2d');
+  tc.setTransform(DPR,0,0,DPR,0,0);
+  drawStrokePath(tc, s);
+  const ic = cvInk.getContext('2d');
+  ic.save();
+  ic.setTransform(1,0,0,1,0,0);
+  ic.globalAlpha = s.op;
+  ic.drawImage(tmp,0,0);
+  ic.restore();
+}
+function redrawInk(){
+  const ic = cvInk.getContext('2d');
+  ic.save(); ic.setTransform(1,0,0,1,0,0);
+  ic.clearRect(0,0,cvInk.width,cvInk.height);
+  ic.restore();
+  strokes.forEach(commitStroke);
+}
+
+/* pointer */
+function ptOf(e){
+  const r = cvLive.getBoundingClientRect();
+  return {x:e.clientX-r.left, y:e.clientY-r.top, t:Date.now()};
+}
+cvLive.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  cvLive.setPointerCapture(e.pointerId);
+  const p = ptOf(e);
+  const now = Date.now();
+  if (!firstStrokeAt) firstStrokeAt = now;
+  if (lastStrokeEnd){
+    const gap = now - lastStrokeEnd;
+    if (gap > 6000) hesitations++;
+    if (gap > maxGap) maxGap = gap;
+  }
+  // 重ね塗り検出：書き出し地点にすでに色があるか
+  try {
+    const d = cvInk.getContext('2d').getImageData(Math.round(p.x*DPR),Math.round(p.y*DPR),1,1).data;
+    if (d[3] > 30) overpaintStarts++;
+  } catch(_){}
+  live = {color:curColor, size:SIZES[curSize], op:OPS[curOp], pts:[p]};
+  cvLive.style.opacity = live.op;
+  const ci = cellAt(p.x,p.y);
+  if (ci>=0 && !cellOrder.includes(ci)) cellOrder.push(ci);
+  drawStrokePath(cvLive.getContext('2d'), live);
+});
+cvLive.addEventListener('pointermove', e => {
+  if (!live) return;
+  const p = ptOf(e);
+  const last = live.pts[live.pts.length-1];
+  if (Math.hypot(p.x-last.x,p.y-last.y) < 1.5) return;
+  live.pts.push(p);
+  const ci = cellAt(p.x,p.y);
+  if (ci>=0 && !cellOrder.includes(ci)) cellOrder.push(ci);
+  const lc = cvLive.getContext('2d');
+  lc.save(); lc.setTransform(1,0,0,1,0,0);
+  lc.clearRect(0,0,cvLive.width,cvLive.height); lc.restore();
+  drawStrokePath(lc, live);
+});
+function endStroke(){
+  if (!live) return;
+  strokes.push(live);
+  commitStroke(live);
+  const lc = cvLive.getContext('2d');
+  lc.save(); lc.setTransform(1,0,0,1,0,0);
+  lc.clearRect(0,0,cvLive.width,cvLive.height); lc.restore();
+  cvLive.style.opacity = 1;
+  lastStrokeEnd = Date.now();
+  live = null;
+}
+cvLive.addEventListener('pointerup', endStroke);
+cvLive.addEventListener('pointercancel', endStroke);
+
+function undoStroke(){ if(strokes.length){ strokes.pop(); undoCount++; redrawInk(); } }
+function clearAll(){ if(strokes.length){ strokes = []; clearCount++; cellOrder=[]; redrawInk(); } }
+
+/* palette / tools */
+function buildPalette(){
+  const pal = $('palette');
+  // 系統ごとに縦に並ぶよう転置（8列×4行）
+  for (let row=0; row<4; row++){
+    for (let col=0; col<8; col++){
+      const c = COLORS[col*4+row];
+      const b = document.createElement('button');
+      b.className = 'sw' + (c===curColor?' sel':'');
+      b.style.background = c.hex;
+      b.title = c.name;
+      b.onclick = () => {
+        curColor = c;
+        pal.querySelectorAll('.sw').forEach(x=>x.classList.remove('sel'));
+        b.classList.add('sel');
+      };
+      pal.appendChild(b);
+    }
+  }
+}
+$('tg-size').querySelectorAll('button').forEach(b=>{
+  b.onclick = () => { curSize=+b.dataset.s;
+    $('tg-size').querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b)); };
+});
+$('tg-op').querySelectorAll('button').forEach(b=>{
+  b.onclick = () => { curOp=+b.dataset.o;
+    $('tg-op').querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b)); };
+});
+
+/* ════════ 解析 ════════ */
+const RGB = COLORS.map(c=>{
+  const h = c.hex.slice(1);
+  return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+});
+function nearestColor(r,g,b){
+  let best=0, bd=1e9;
+  for (let i=0;i<RGB.length;i++){
+    const d = (r-RGB[i][0])**2 + (g-RGB[i][1])**2 + (b-RGB[i][2])**2;
+    if (d<bd){bd=d;best=i;}
+  }
+  return best;
+}
+function analyze(){
+  const ic = cvInk.getContext('2d');
+  const img = ic.getImageData(0,0,cvInk.width,cvInk.height).data;
+  const W = cvInk.width;
+  const step = Math.max(2, Math.round(2*DPR));
+  const cells = POS.map(()=>({painted:0,total:0,fam:{},shade:{}}));
+  const famAll = {}, shadeAll = {};
+  let outsidePainted=0, outsideTotal=0, paintedAll=0;
+  for (let y=0;y<W;y+=step){
+    for (let x=0;x<W;x+=step){
+      const cssX = x/DPR, cssY = y/DPR;
+      const ci = cellAt(cssX,cssY);
+      const i = (y*W+x)*4;
+      const a = img[i+3];
+      const painted = a>40;
+      if (ci>=0){
+        cells[ci].total++;
+        if (painted){
+          cells[ci].painted++;
+          const k = nearestColor(img[i],img[i+1],img[i+2]);
+          const f = COLORS[k].f;
+          cells[ci].fam[f]=(cells[ci].fam[f]||0)+1;
+          cells[ci].shade[k]=(cells[ci].shade[k]||0)+1;
+        }
+      } else {
+        outsideTotal++;
+        if (painted) outsidePainted++;
+      }
+      if (painted){
+        paintedAll++;
+        const k = nearestColor(img[i],img[i+1],img[i+2]);
+        famAll[COLORS[k].f]=(famAll[COLORS[k].f]||0)+1;
+        shadeAll[k]=(shadeAll[k]||0)+1;
+      }
+    }
+  }
+  const cellData = cells.map((c,idx)=>{
+    const cov = c.total? c.painted/c.total : 0;
+    const fams = Object.entries(c.fam).sort((a,b)=>b[1]-a[1]);
+    const shades = Object.entries(c.shade).sort((a,b)=>b[1]-a[1]);
+    return {
+      idx, cov,
+      fam1: fams[0]?.[0] || null,
+      fam1r: fams[0] && c.painted ? fams[0][1]/c.painted : 0,
+      fam2: fams[1] && fams[1][1]/c.painted>0.22 ? fams[1][0] : null,
+      shade1: shades[0]? +shades[0][0] : null,
+    };
+  });
+  const famRank = Object.entries(famAll).sort((a,b)=>b[1]-a[1])
+    .map(([f,n])=>({f, r:n/paintedAll}));
+  // 筆致
+  let totalLen=0, totalDur=0;
+  strokes.forEach(s=>{
+    for(let i=1;i<s.pts.length;i++)
+      totalLen += Math.hypot(s.pts[i].x-s.pts[i-1].x, s.pts[i].y-s.pts[i-1].y);
+    if (s.pts.length>1) totalDur += s.pts[s.pts.length-1].t - s.pts[0].t;
+  });
+  const gridPainted = cells.reduce((a,c)=>a+c.painted,0);
+  const gridTotal   = cells.reduce((a,c)=>a+c.total,0);
+  return {
+    cellData, famRank,
+    shadeRank: Object.entries(shadeAll).sort((a,b)=>b[1]-a[1]).map(([k,n])=>({k:+k, r:n/paintedAll})),
+    whitespace: gridTotal? 1 - gridPainted/gridTotal : 1,
+    outside: outsideTotal? outsidePainted/outsideTotal : 0,
+    speed: totalDur>0? totalLen/totalDur : 0,
+    strokeCount: strokes.length,
+    lightRatio: strokes.length? strokes.filter(s=>s.op<0.5).length/strokes.length : 0,
+    thinkTime: firstStrokeAt? (firstStrokeAt-paintShownAt)/1000 : 0,
+    empty: paintedAll===0,
+  };
+}
+
+/* ════════ 診断文の生成 ════════ */
+const COV_WORD = c =>
+  c<0.02? null : c<0.3? 'そっと置かれています' : c<0.75? 'しっかりと塗られています' : 'あふれるほど、たっぷりと注がれています';
+
+const EMPTY_TEXTS = [
+  'ここは、余白のまま。空いている場所は、欠けているのではなく、これから入ってくるものの席です。いまは白いままで、だいじょうぶ。',
+  'ここには、まだ色が置かれていません。それは「まだ決めなくていい」という、あなた自身へのやさしい保留かもしれません。',
+  'この場所は、静かな余白。余白は、呼吸するための場所です。埋めないという選択も、りっぱな表現です。',
+];
+
+const TITLE_BY_FAM = {
+  momo:    ['やわらかな心が、まんなかにある日','自分を、ゆるしはじめた日'],
+  aka:     ['熱を抱いたまま、歩き出す日','いのちの火が、静かに燃えている'],
+  daidai:  ['あたたかさが、めぐりはじめる','ひだまりを、わけあいたい日'],
+  ki:      ['光のほうへ、顔を上げる日','小さな好奇心が、芽を出した'],
+  midori:  ['深呼吸のような、回復のとき','育てる季節が、はじまっている'],
+  ao:      ['藍のしずけさに、耳をすます時間','深く潜って、澄んでいく日'],
+  murasaki:['祈りのように、感じている','見えないものと、つながる日'],
+  daichi:  ['根を下ろして、休む季節','守ることも、前に進むこと'],
+};
+
+const ADVICE_BY_FAM = {
+  momo:    '今日、自分にひとつだけ「よくやってるね」と声をかけてあげてください。誰かにかけるはずのやさしさを、まず自分に。',
+  aka:     'その熱は本物です。大きな計画にふくらませる前に、今日できる15分ぶんだけ、手を動かしてみてください。火は、小さく灯しつづけるほうが長持ちします。',
+  daidai:  '近くの誰かと、用事のない話をひとつしてみてください。あたたかさは、循環させると増えていきます。',
+  ki:      '気になっていることをひとつ、「調べるだけ」調べてみてください。行動はまだ先でかまいません。好奇心そのものが、いまのあなたの燃料です。',
+  midori:  '予定をひとつ減らして、その分だけゆっくり湯船につかるか、緑のある場所を歩いてみてください。回復もまた、りっぱな前進です。',
+  ao:      '5分だけ、何もしない静かな時間をつくってみてください。考えは、追いかけるより待つほうが、澄んでいきます。',
+  murasaki:'今日感じたことを、短くていいので言葉やスケッチにして残してみてください。あなたの感受性は、かたちにする価値があります。',
+  daichi:  '今夜はいつもより30分早く、休む準備をはじめてみてください。守りに入ることは後退ではなく、充電です。',
+};
+
+function pickShadeName(k){ return COLORS[k].name; }
+
+function buildCellText(cd){
+  const pos = POS[cd.idx];
+  if (cd.cov < 0.02){
+    const t = EMPTY_TEXTS[cd.idx % EMPTY_TEXTS.length];
+    if (cd.idx===4)
+      return 'まんなか——魂の核は、余白のままにされました。核が白いのは、空っぽということではありません。いまのあなたは、何にでもなれる状態で、静かに呼吸しているのだと思います。';
+    return `${pos.mean}の場所。${t}`;
+  }
+  const shade = COLORS[cd.shade1];
+  const fam = FAMILIES[cd.fam1];
+  const cov = COV_WORD(cd.cov);
+  let t = '';
+  if (cd.idx===4){
+    t = `まんなか——魂の核には、${shade.n}「${shade.name}」。${cov}。いまのあなたのいちばん深いところには、${fam.core}——${fam.mean}が息づいています。これが、いまのあなたの原点の色です。`;
+  } else {
+    t = `${pos.mean}の場所には、${shade.n}「${shade.name}」が${cov}。${fam.core}が、この領域を照らしています。${fam.mean}が、ここに宿っているようです。`;
+  }
+  if (cd.fam2){
+    const f2 = FAMILIES[cd.fam2];
+    t += `そこに${f2.label}の気配もまざっていて、${f2.core}が、そっと寄り添っています。`;
+  }
+  return t;
+}
+
+function buildDiag(a){
+  if (a.empty){
+    return {
+      title:'まっしろのまま、ここにいる',
+      secs:[
+        {label:'いろのかたち', name:'色の構成', html:'<p>今回は、ひとつも色が置かれませんでした。それも、りっぱなこたえです。</p>'},
+        {label:'たましいのいま', name:'総合', html:'<p>白いままの9マスは、「いまは何も塗りたくない」という、あなたの正直な気持ちです。空白でいられることは、実はとても強いこと。心が何かを溜めている途中なのかもしれません。</p>'},
+        {label:'あしたのために', name:'アドバイス', html:'<p>色を塗りたくなる日が、きっと来ます。今日は、あたたかいものを飲んで、ゆっくり休んでください。また、いつでもここで待っています。</p>'},
+      ],
+    };
+  }
+  const dom = a.famRank[0];
+  const domFam = FAMILIES[dom.f];
+  const nFam = a.famRank.length;
+
+  /* ① タイトル */
+  let title;
+  if (a.whitespace > 0.62) title = '余白という名の、はじまり';
+  else if (nFam >= 6)      title = 'たくさんの声と、ひとつの魂';
+  else {
+    const ts = TITLE_BY_FAM[dom.f];
+    title = ts[a.strokeCount % ts.length];
+  }
+
+  /* ② 色の構成 */
+  let bars = '<div class="cbars">';
+  a.famRank.slice(0,5).forEach(({f,r})=>{
+    const rep = COLORS.find(c=>c.f===f);
+    bars += `<div class="cb"><span class="dot" style="background:${rep.hex}"></span>`+
+      `<span class="nm">${FAMILIES[f].label}</span>`+
+      `<span class="bar"><i style="width:${Math.max(3,Math.round(r*100))}%;background:${rep.hex}"></i></span>`+
+      `<span class="pc">${Math.round(r*100)}%</span></div>`;
+  });
+  bars += '</div>';
+  let compText = '';
+  if (nFam===1){
+    compText = `今日のあなたは、${domFam.label}ひと色。迷いなくひとつの色を選べるのは、いま自分に必要なものを、心がちゃんと知っているからです。${domFam.core}——${domFam.mean}が、いまのあなたの全体を包んでいます。`;
+  } else if (nFam<=3){
+    const f2 = FAMILIES[a.famRank[1].f];
+    compText = `中心にあるのは${domFam.label}の${domFam.core}。そこに${f2.label}の${f2.core}が重なっています。少ない色でまとめられた画面は、心の焦点がしぼれているしるしです。`;
+  } else {
+    compText = `${nFam}つの色の系統が使われました。いまのあなたの中には、いくつもの気持ちが同時に生きています。それはちらかっているのではなく、豊かさです。その中でいちばん大きな声は、${domFam.label}——${domFam.core}でした。`;
+  }
+  const topShade = COLORS[a.shadeRank[0].k];
+  compText += `とくに多く使われたのは「${topShade.name}」。${topShade.n}色です。`;
+
+  /* ③ 位置ごと */
+  let cellsHtml = '';
+  a.cellData.forEach(cd=>{
+    let mini = '<span class="pos9">';
+    for (let i=0;i<9;i++) mini += `<i${i===cd.idx?' class="on"':''}></i>`;
+    mini += '</span>';
+    cellsHtml += `<div class="cell-item">${mini}<div class="cell-body">`+
+      `<div class="cell-pos">${POS[cd.idx].name}</div>`+
+      `<div class="cell-txt">${buildCellText(cd)}</div></div></div>`;
+  });
+
+  /* ④ 塗り方 */
+  const brush = [];
+  if (a.thinkTime > 12)
+    brush.push('塗りはじめる前に、じっくりと時間をとりました。最初のひと筆を大切にできる人です。');
+  else if (a.thinkTime < 3 && a.strokeCount>0)
+    brush.push('迷わず、すぐに筆が動きはじめました。直感が、いまとてもよく通じています。');
+  if (a.speed > 0.85)
+    brush.push('筆致には勢いがあります。心の中のものが、外に出たがっているようです。');
+  else if (a.speed > 0 && a.speed < 0.25)
+    brush.push('ひと筆ひと筆が、ゆっくりとていねいです。自分の内側と、静かに対話しながら塗った跡が見えます。');
+  if (hesitations >= 2)
+    brush.push('途中、筆が止まる時間が何度かありました。迷いは、真剣さの別名です。');
+  if (overpaintStarts >= 3)
+    brush.push('同じ場所に、何度も色が重ねられています。それだけ、そこにある想いが濃いということです。');
+  if (a.lightRatio > 0.5 && a.strokeCount>2)
+    brush.push('うすい色を重ねる塗り方が中心でした。断定せず、濃淡のあいだを生きられる繊細さがあります。');
+  if (a.outside > 0.02)
+    brush.push('枠の外にも、色がこぼれています。いまのあなたの中にあるものは、用意された枠より、すこし大きいのかもしれません。');
+  if (undoCount + clearCount >= 3)
+    brush.push('何度か塗り直しがありました。やり直せるとわかっていることは、弱さではなく、しなやかさです。');
+  if (a.whitespace > 0.55)
+    brush.push('画面には、たっぷりの余白が残されました。余白は、これからの時間のための席です。');
+  else if (a.whitespace < 0.12)
+    brush.push('画面いっぱいに色が満ちています。表現したいものが、いまとても豊かです。');
+  if (!brush.length)
+    brush.push('落ち着いた、むらのない筆づかいでした。心と手が、いまよく調和しています。');
+
+  /* ⑤ 総合 */
+  const colCov = [0,1,2].map(c => (a.cellData[c].cov + a.cellData[c+3].cov + a.cellData[c+6].cov)/3);
+  const rowCov = [0,1,2].map(r => (a.cellData[r*3].cov + a.cellData[r*3+1].cov + a.cellData[r*3+2].cov)/3);
+  const colNames = ['過去','現在','未来'], rowNames = ['思考','行動','感情'];
+  const maxCol = colCov.indexOf(Math.max(...colCov));
+  const maxRow = rowCov.indexOf(Math.max(...rowCov));
+  let total = '';
+  const core = a.cellData[4];
+  if (core.cov >= 0.02){
+    const cf = FAMILIES[core.fam1];
+    total += `魂の核に置かれたのは、${cf.label}——${cf.core}。いまのあなたの土台には、${cf.mean}があります。`;
+  } else {
+    total += '魂の核は余白のまま。中心を急いで決めない、静かな成熟がここにあります。';
+  }
+  total += `画面全体では「${colNames[maxCol]}」の列に、いちばん多くの色が置かれました。`;
+  total += maxCol===0
+    ? 'あなたは今、これまでの時間をていねいに振り返り、そこから何かを受け取ろうとしている時期のようです。'
+    : maxCol===1
+    ? '意識は「いま、ここ」にしっかりと立っています。足元を見られていることは、なによりの強さです。'
+    : '意識はすでに、未来へ向かって開きはじめています。心の帆が、風を待っています。';
+  total += `また「${rowNames[maxRow]}」の段がもっともよく塗られていて、`;
+  total += maxRow===0
+    ? '頭の中で、たくさんのことが動いている時期です。考えることは、あなたの誠実さのかたちです。'
+    : maxRow===1
+    ? '現実を動かす力が、いま満ちています。手を動かせば、応えてくれる時期です。'
+    : '感情の層が、ゆたかに息づいています。感じる力が、いまのあなたの羅針盤です。';
+  if (cellOrder.length){
+    const first = cellOrder[0];
+    if (first===4) total += 'そして、まっさきに筆が向かったのは魂の核でした。自分の中心から世界を組み立てる——それがあなたの順序です。';
+    else if (first%3===0) total += 'まっさきに筆が向かったのは、過去の列。積み重ねてきたものを確かめてから前へ進む、誠実な順序です。';
+    else if (first%3===2) total += 'まっさきに筆が向かったのは、未来の列。まだ見ぬ時間から先に色を置ける人は、希望の使い方を知っています。';
+  }
+
+  /* ⑥ アドバイス */
+  let advice = ADVICE_BY_FAM[dom.f];
+  const futureCov = colCov[2];
+  if (futureCov < 0.05 && a.whitespace < 0.9)
+    advice += 'それから——未来のマスに残った余白は、白紙の切符です。何も決まっていないことは、どこへでも行けるということ。あせらなくて、だいじょうぶ。';
+
+  return {
+    title,
+    secs:[
+      {label:'いろのかたち', name:'色の構成', html: bars + `<p>${compText}</p>`},
+      {label:'ここのつのへや', name:'位置ごとの診断', html: cellsHtml},
+      {label:'ふでのあと', name:'塗り方', html: brush.map(t=>`<p>${t}</p>`).join('')},
+      {label:'たましいのいま', name:'総合', html:`<p>${total}</p>`},
+      {label:'あしたのために', name:'アドバイス', html:`<p>${advice}</p>`},
+    ],
+  };
+}
+
+/* ════════ 画面遷移 ════════ */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const el = $(id);
+  el.classList.remove('on'); void el.offsetWidth;
+  el.classList.add('on');
+  window.scrollTo(0,0);
+}
+function goPaint(){
+  show('scr-paint');
+  if (!CW) setupCanvas();
+  paintShownAt = Date.now();
+}
+let lastAnalysis = null, lastDiag = null;
+function finishPaint(){
+  show('scr-loading');
+  setTimeout(()=>{
+    lastAnalysis = analyze();
+    lastDiag = buildDiag(lastAnalysis);
+    renderResult(lastDiag);
+    show('scr-result');
+  }, 2200);
+}
+function renderResult(d){
+  $('r-title').textContent = d.title;
+  const n = new Date();
+  $('r-date').textContent = `${n.getFullYear()} . ${String(n.getMonth()+1).padStart(2,'0')} . ${String(n.getDate()).padStart(2,'0')}`;
+  const body = $('r-body');
+  body.innerHTML = '';
+  d.secs.forEach((s,i)=>{
+    const div = document.createElement('div');
+    div.className = 'sec';
+    div.style.animationDelay = (0.15*i)+'s';
+    div.innerHTML = `<div class="sec-label">${s.label}</div><div class="sec-name">${s.name}</div>${s.html}`;
+    body.appendChild(div);
+  });
+  // サムネイル
+  const th = $('cv-thumb');
+  const tw = Math.min(240, CW);
+  th.width = tw*DPR; th.height = tw*DPR;
+  th.style.width = tw+'px'; th.style.height = tw+'px';
+  const tc = th.getContext('2d');
+  tc.setTransform(DPR,0,0,DPR,0,0);
+  drawPaper(tc, tw);
+  tc.drawImage(cvInk, 0,0,cvInk.width,cvInk.height, 0,0,tw,tw);
+  $('ai-box').classList.remove('on');
+  $('ai-box').innerHTML = '';
+}
+function restart(){
+  strokes=[]; cellOrder=[]; live=null;
+  firstStrokeAt=0; lastStrokeEnd=0;
+  hesitations=0; maxGap=0; undoCount=0; clearCount=0; overpaintStarts=0;
+  redrawInk();
+  goPaint();
+}
+
+/* ════════ 画像保存 ════════ */
+function saveImage(){
+  const S = 1080, m = 90;
+  const ec = document.createElement('canvas');
+  ec.width = S; ec.height = S + 200;
+  const c = ec.getContext('2d');
+  c.fillStyle = '#fdfaf4'; c.fillRect(0,0,S,S+200);
+  // 絵
+  const tmp = document.createElement('canvas');
+  tmp.width = S-m*2; tmp.height = S-m*2;
+  const tc = tmp.getContext('2d');
+  drawPaper(tc, S-m*2);
+  tc.drawImage(cvInk, 0,0,cvInk.width,cvInk.height, 0,0,S-m*2,S-m*2);
+  c.drawImage(tmp, m, m);
+  // タイトルと日付
+  c.fillStyle = '#4a4038';
+  c.font = '36px "Hiragino Mincho ProN","Yu Mincho",serif';
+  c.textAlign = 'center';
+  c.fillText(lastDiag? lastDiag.title : 'いろたま', S/2, S+60);
+  c.fillStyle = '#c9c0b2';
+  c.font = '22px serif';
+  const n = new Date();
+  c.fillText(`いろたま  ${n.getFullYear()}.${String(n.getMonth()+1).padStart(2,'0')}.${String(n.getDate()).padStart(2,'0')}`, S/2, S+120);
+  ec.toBlob(blob=>{
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `irotama_${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}.png`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+  }, 'image/png');
+}
+
+/* ════════ AIにもっと深く聞く ════════ */
+function buildAIPrompt(){
+  const a = lastAnalysis;
+  const cellDesc = a.cellData.map(cd=>{
+    if (cd.cov<0.02) return `${POS[cd.idx].name}: 余白`;
+    return `${POS[cd.idx].name}: ${COLORS[cd.shade1].name}（塗り${Math.round(cd.cov*100)}%）`;
+  }).join(' / ');
+  return `あなたは「いろたま」というアートセラピー的な自己内省ツールの読み手です。
+ユーザーが3×3の9マス（左列=過去・中央列=現在・右列=未来、上段=思考・中段=行動・下段=感情、中央=魂の核）に直感で色を塗りました。
+結果: ${cellDesc}
+余白率${Math.round(a.whitespace*100)}%、使用色系統${a.famRank.length}種、筆数${a.strokeCount}。
+この人の現在の状態を、否定せず、恐怖を煽らず、決めつけず、読み終えたあと少し安心して前向きになれるよう、300字程度でやさしく読み解いてください。最後にひとつだけ、今日できる小さな実践を添えてください。`;
+}
+async function askDeeper(){
+  const box = $('ai-box');
+  box.classList.add('on');
+  const prompt = buildAIPrompt();
+  if (!window.cowork){
+    box.innerHTML = `<a href="https://claude.ai/new?q=${encodeURIComponent(prompt)}" target="_blank">Claude に、この結果をもっと深く読んでもらう →</a><br><span style="font-size:11px;color:var(--ink-faint)">（新しいタブが開きます）</span>`;
+    return;
+  }
+  box.textContent = '…よんでいます…';
+  try {
+    const reply = await window.cowork.askClaude(prompt, []);
+    const text = typeof reply === 'string' ? reply
+      : reply?.text ?? reply?.content ?? reply?.result
+      ?? (Array.isArray(reply) ? reply[0]?.text ?? JSON.stringify(reply) : JSON.stringify(reply));
+    box.innerHTML = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\n/g,'<br>');
+  } catch(e){
+    box.textContent = '（いまは読めませんでした。また後で試してください）';
+  }
+}
+
+/* ════════ init ════════ */
+buildPalette();
+window.addEventListener('resize', ()=>{
+  if (!CW || !$('scr-paint').classList.contains('on')) return;
+  // リサイズ時は紙だけ再描画（塗りかけの絵は保持するため寸法は固定）
+});
+</script>
+</body>
+</html>
