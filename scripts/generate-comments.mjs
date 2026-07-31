@@ -205,10 +205,14 @@ async function main() {
       }
     }
 
-    writeFileSync(
-      path.join(COMMENTS_DIR, `${slug}.json`),
-      JSON.stringify({ slug, hash, updated: new Date().toISOString(), comments }, null, 2) + '\n'
-    );
+    const unchanged =
+      existing?.hash === hash && JSON.stringify(existing.comments) === JSON.stringify(comments);
+    if (!unchanged) {
+      writeFileSync(
+        path.join(COMMENTS_DIR, `${slug}.json`),
+        JSON.stringify({ slug, hash, updated: new Date().toISOString(), comments }, null, 2) + '\n'
+      );
+    }
   }
 
   manifest.sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.file.localeCompare(a.file));
