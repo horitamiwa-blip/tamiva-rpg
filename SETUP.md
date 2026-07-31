@@ -2,7 +2,7 @@
 
 多神和のObsidianメモ（散歩に限らず、制作のつぶやきや日々の気づきなど何でも）を、
 ボーダ（Claude）・こぬこぬ（ChatGPT）・めぐちゃん（Gemini）・ぐろっくん（Grok）が
-コメントしてくれる、みんなが見れる1つの場所（`notes.html`）にする仕組みです。
+コメントしてくれる、みんなが見れる1つの場所（`index.html`）にする仕組みです。
 
 ## 0. APIキーについて（基礎知識）
 
@@ -51,8 +51,7 @@ webhookまたはポーリングで結果取得、という流れになるので�
 **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main` / `(root)`**
 
 このブランチ（`claude/shared-walk-notes-platform-y6dpme`）を `main` にマージすると、
-`https://<ユーザー名>.github.io/tamiva-rpg/notes.html` で見れるようになります
-（`index.html` の既存のRPGダッシュボードと同じ公開のされ方です）。
+`https://<ユーザー名>.github.io/tamiva-rpg/` で見れるようになります。
 
 ## 3. Obsidianと同期する
 
@@ -73,7 +72,7 @@ webhookまたはポーリングで結果取得、という流れになるので�
    （`title` / `date` / `type`）で保存する。
 
 これで、Obsidianで書いて保存 → 自動push → GitHub Actionsが4人のコメントを生成 →
-`notes.html` に反映、という流れになります。
+`index.html` に反映、という流れになります。
 
 ## 4. 動作確認
 
