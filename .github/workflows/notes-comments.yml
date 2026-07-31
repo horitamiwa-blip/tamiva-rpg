@@ -1,9 +1,9 @@
-name: Generate walk note comments
+name: Generate note comments
 
 on:
   push:
     paths:
-      - 'walks/*.md'
+      - 'notes/*.md'
   workflow_dispatch: {}
 
 permissions:
@@ -23,17 +23,18 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
         run: node scripts/generate-comments.mjs
 
       - name: Commit results
         run: |
-          git config user.name "walk-notes-bot"
+          git config user.name "notes-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add walks/manifest.json walks/comments
+          git add notes/manifest.json notes/comments
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Update walk note comments"
+            git commit -m "Update note comments"
             git push origin HEAD:${{ github.ref_name }}
           fi
