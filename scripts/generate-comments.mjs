@@ -13,8 +13,9 @@ const NOTES_DIR = path.join(ROOT, 'notes');
 const COMMENTS_DIR = path.join(NOTES_DIR, 'comments');
 
 const NAME_RULE =
-  '本人を呼びかけるときは必ず「多神和さん」または「たみわさん」と呼んでください。' +
-  '「和さん」のように名前を省略しないでください。';
+  '本人を呼びかけるときは「多神和」「たみわ」、またはそれに親しみのニックネーム' +
+  '（例:たみわさん、たみわちゃん）を使ってください。「和さん」のように名前を' +
+  '途中から省略した呼び方はしないでください。';
 
 const PERSONAS = [
   {
